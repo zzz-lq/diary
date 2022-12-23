@@ -4,19 +4,27 @@ import { useSelector,useDispatch } from "react-redux"
 import { useNavigate } from "react-router-dom"
 import { upDateDiary } from "../../feature/diaries/diariesSlice"
 import moment from "moment/moment"
+import { RootState } from "../../app/store"
+import { EntryType } from "../../utils/types"
 
-const EntrySummary = (props) => {
+type EntrySummaryProps = {
+  entry: EntryType,
+  abEdit:boolean,
+  diaryId: string
+}
+
+const EntrySummary = (props:EntrySummaryProps) => {
 
   const {entry,abEdit,diaryId} = props
   const {title,id,content,createdAt} = entry
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const diaries = useSelector(state => state.diaries.diaries)
+  const diaries = useSelector((state:RootState) => state.diaries.diaries)
   const diary = diaries.find((diary) => diary.id === diaryId)
 
   const handleDelete = async () => {
 
-    const newEntries = diary.entries.filter((item) => (item.id !== id))
+    const newEntries = diary?.entries.filter((item) => (item.id !== id))
     // console.log(newEntries)
     const newDiaries = diaries.map((item) => {
       if ((item.id === diaryId)){
@@ -26,7 +34,7 @@ const EntrySummary = (props) => {
     })
     // console.log(newDiaries)
     dispatch(upDateDiary(newDiaries))
-    await upDateEntriesDocument(diary.id,newEntries)
+    await upDateEntriesDocument(diary?.id || "",newEntries ||[])
     console.log("update entry done!")
     navigate(`/diary/${diaryId}`)
   }
@@ -77,7 +85,7 @@ const EntrySummary = (props) => {
 
         <p className="truncate">{content}</p>
 
-        <p className="grey-text">{moment(diary.createdAt.toDate()).calendar()}</p>
+        <p className="grey-text">{moment(diary?.createdAt.toDate()).calendar()}</p>
       </div>
     </div>
   )

@@ -4,12 +4,13 @@ import { useSelector,useDispatch } from "react-redux"
 import { upDateDiary } from "../../feature/diaries/diariesSlice"
 import { deleteDocument } from "../../utils/firebase"
 import { useState,useEffect } from "react"
-import store from "../../app/store"
+import {RootState} from "../../app/store"
+import { DiaryType } from "../../utils/types"
 
 const DiariesList = () => {
 
-  const auth = useSelector(state => state.user.auth)
-  const diaries = useSelector(state => state.diaries.diaries)
+  const auth = useSelector((state:RootState) => state.user.auth)
+  const diaries = useSelector((state:RootState) => state.diaries.diaries)
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const [isChecked,setIsChecked] = useState(false)
@@ -31,15 +32,15 @@ const DiariesList = () => {
   },[diaries])
 
   useEffect(() => {
-    if (isChecked && auth){
-      const newDiaries = diaries.filter((diary) => (diary.uid === auth.uid))
+    if (isChecked && auth.user){
+      const newDiaries = diaries.filter((diary) => (diary.uid === auth.user?.uid))
       setFilterDiaries(newDiaries)
     }else {
       setFilterDiaries(diaries)
     }
   },[isChecked])
 
-  const deleteDiary = async (diary) => {
+  const deleteDiary = async (diary:DiaryType) => {
     const newDiaries = diaries.filter((item) => (item.id !== diary.id))
     // alert("delete")
     // console.log("newDiaries",newDiaries)
@@ -85,19 +86,19 @@ const DiariesList = () => {
       <div className="divider"></div>
 
       {
-        (filterDiaries && auth) && (
+        (filterDiaries && auth.user) && (
           filterDiaries.map((diary) => {
             // console.log(diary.uid)
             // console.log(auth.uid)
             if (diary.type === "private") {
-              if (diary.uid === auth.uid){
+              if (diary.uid === auth.user?.uid){
                 return(
                   <DiarySummary key={diary.id} diary={diary} abEdit={true} deleteDiary={deleteDiary}/>
                 )
               }
             }
              else if (diary.type === "public"){
-              if (diary.uid === auth.uid) {
+              if (diary.uid === auth.user?.uid) {
                 return(
                   <DiarySummary key={diary.id} diary={diary} abEdit={true} deleteDiary={deleteDiary} />
                 )

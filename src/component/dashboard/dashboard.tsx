@@ -6,29 +6,29 @@ import { useEffect,useState } from "react"
 import { BeatLoader } from "react-spinners";
 import { getDocumentByDiaries} from "../../utils/firebase"
 import { upDateDiary } from "../../feature/diaries/diariesSlice"
-import store from "../../app/store"
+import store,{RootState} from "../../app/store"
 
 const DashBoard = () => {
 
-  const auth = useSelector(state => state.user.auth)
-  const diaries = useSelector(state => state.diaries.diaries)
+  const auth = useSelector((state:RootState) => state.user.auth)
+  const diaries = useSelector((state:RootState) => state.diaries.diaries)
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const [update,setUpdate] = useState({})
+  // const [update,setUpdate] = useState({})
   
-  // 让redux立即更新
-  useEffect(() => {
-    // store.subscribe()是redux提供的，监测store更新的函数
-    store.subscribe(() => {
-      // 当store数据更新后执行 setUpdate() ，组件重新加载，实现界面store数据更新
-      console.log("ok")
-      setUpdate({})
-    })
-  })
+  // // 让redux立即更新
+  // useEffect(() => {
+  //   // store.subscribe()是redux提供的，监测store更新的函数
+  //   store.subscribe(() => {
+  //     // 当store数据更新后执行 setUpdate() ，组件重新加载，实现界面store数据更新
+  //     // console.log("ok")
+  //     setUpdate({})
+  //   })
+  // })
 
   useEffect(() => {
-    
-    if (auth === null) {
+    // console.log(auth.user)
+    if (auth.user === null) {
       navigate("/signin")
       // alert("board dont have")
     }

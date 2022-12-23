@@ -6,6 +6,9 @@ import { uuidv4 } from "@firebase/util"
 import { upDateDiary } from "../../feature/diaries/diariesSlice"
 import { addNotification } from "../../feature/notifications/notificationsSlice"
 import { Timestamp } from "firebase/firestore"
+import { RootState } from "../../app/store"
+import { ChangeEvent,FormEvent } from "react"
+import { DiaryType } from "../../utils/types"
 
 const initialState = {
   title: "",
@@ -15,8 +18,8 @@ const initialState = {
 
 const CreateDiary = () => {
 
-  const auth = useSelector(state => state.user.auth)
-  const diaries = useSelector(state => state.diaries.diaries)
+  const auth = useSelector((state:RootState) => state.user.auth)
+  const diaries = useSelector((state:RootState) => state.diaries.diaries)
   const [formData,setFormData] = useState(initialState)
   const navigate = useNavigate()
   const dispatch = useDispatch()
@@ -27,22 +30,22 @@ const CreateDiary = () => {
     }
   },[auth])
   
-  const handleChange = (e) => {
+  const handleChange = (e:ChangeEvent<HTMLInputElement>) => {
     const {name,value} = e.target
     setFormData({...formData,[name]:value})
   }
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async(e:FormEvent<HTMLFormElement>) => {
 
     e.preventDefault()
     const id = uuidv4();
     // const second = new Date().getTime()
     const createdAt = Timestamp.now();
-    const data = {
+    const data:DiaryType = {
       ...formData,
       id,
       createdAt,
-      uid:auth.uid,
+      uid:auth.user?.uid || "",
       displayName:auth.displayName,
     }
     // console.log(formData.type)

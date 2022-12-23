@@ -6,6 +6,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
+  User,
+  UserCredential
 } from 'firebase/auth'
 
 import {
@@ -24,6 +26,7 @@ import {
   limit
 } from 'firebase/firestore'
 import { uuidv4 } from "@firebase/util";
+import { DiaryType, EntryType,NotificationType } from "./types";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB-XjlTqAheJHCd1iAhA9p_EPGLlQobTxY",
@@ -53,10 +56,15 @@ export const signInWithGooglePopup = () => signInWithPopup(auth,provider)
 // 创建数据库实例
 export const db = getFirestore()
 
+type AdditionalInformation = {
+  firstname:string,
+  lastname:string,
+}
+
 // 创建collection ==> for users
 export const createUserDocumentFromAuth = async (
-  userAuth,
-  additionalInformation ) => {
+  userAuth:User,
+  additionalInformation = {} as AdditionalInformation) => {
   if (!userAuth) return;
 
   const userDocRef = doc(db, 'users', userAuth.uid);
@@ -64,15 +72,16 @@ export const createUserDocumentFromAuth = async (
   const userSnapshot = await getDoc(userDocRef);
 
   if (!userSnapshot.exists()) {
-    const { firstName,lastName, email } = userAuth;
+    const { email } = userAuth;
+    const {firstname,lastname,} = additionalInformation;
     const createdAt = Timestamp.now();
     const nid = uuidv4();
     const content = "joined the party";
 
     try {
       await setDoc(userDocRef, {
-        firstName,
-        lastName,
+        firstName:firstname,
+        lastName:lastname,
         email,
         createdAt,
         ...additionalInformation,
@@ -82,7 +91,7 @@ export const createUserDocumentFromAuth = async (
         id:nid,
         content,
         createdAt,
-        displayName: lastName +" "+ firstName,
+        displayName: lastname +" "+ firstname,
       });
     } catch (error) {
       console.log('error creating the user', error);
@@ -94,7 +103,7 @@ export const createUserDocumentFromAuth = async (
 };
 
 //通过id获取something
-export const getDocument = async (collectionKey,id) => {
+export const getDocument = async (collectionKey:string,id:string) => {
 
   const docRef = doc(db, collectionKey, id);
   const docSnap = await getDoc(docRef);
@@ -107,14 +116,14 @@ export const getDocument = async (collectionKey,id) => {
 
 
 // 通过账号密码创建用户
-export const createAuthUserWithEmailAndPassword = async (email,password) => {
+export const createAuthUserWithEmailAndPassword = async (email:string,password:string) => {
   if (!email || !password) return;
 
   return await createUserWithEmailAndPassword(auth,email,password);
 }
 
 // 账号密码登录
-export const signInAuthUserWithEmailAndPassword = async (email,password) => {
+export const signInAuthUserWithEmailAndPassword = async (email:string,password:string) => {
   if (!email || !password) return;
 
   return await signInWithEmailAndPassword(auth,email,password);
@@ -123,9 +132,13 @@ export const signInAuthUserWithEmailAndPassword = async (email,password) => {
 // 退出登录
 export const signOutUser = async () => await signOut(auth)
 
+export type ObjectToAdd = {
+  title: string,
+}
+
 //创建集合
-export const addCollectionAndDocuments = async (
-  collectionKey,objectsToAdd) => {
+export const addCollectionAndDocuments = async<T extends ObjectToAdd> (
+  collectionKey:string,objectsToAdd:T[]) => {
   // 创建collection
   const collectionRef = collection(db,collectionKey)
   // 使用batch处理事务
@@ -160,7 +173,7 @@ export const getDocumentByDiaries = async() => {
 }
 
 //add
-export const addDocument = async(collectionKey,data) => {
+export const addDocument = async(collectionKey:string,data:DiaryType) => {
 
   const {id,title,type,entries,uid,displayName,createdAt} = data
   
@@ -182,14 +195,20 @@ export const addDocument = async(collectionKey,data) => {
 }
 
 // delete
-export const deleteDocument = async (collectionKey,id) => {
+export const deleteDocument = async (collectionKey:string,id:string) => {
 
   await deleteDoc(doc(db,collectionKey,id));
   
 }
 
+type UpdateDiaryType = {
+  title:string,
+  type:string,
+  createdAt:Timestamp,
+}
+
 // update一个document的某些字段，更新diary
-export const upDateDiaryDocument = async (id,data) => {
+export const upDateDiaryDocument = async (id:string,data:UpdateDiaryType) => {
 
   const diaryRef = doc(db, "diaries", id);
   const {type,title,createdAt} = data
@@ -203,7 +222,7 @@ export const upDateDiaryDocument = async (id,data) => {
 
 }
 
-export const upDateEntriesDocument = async (id,data) => {
+export const upDateEntriesDocument = async (id:string,data:EntryType[]) => {
 
   const diaryRef = doc(db, "diaries", id);
 
@@ -215,7 +234,7 @@ export const upDateEntriesDocument = async (id,data) => {
 }
 
 // 添加notifications
-export const addNotificationsDocument = async (data) => {
+export const addNotificationsDocument = async (data:NotificationType) => {
 
   const {id,content,createdAt,displayName} = data
   try {

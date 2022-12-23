@@ -2,12 +2,18 @@ import EntrySummary from "./entrySummary"
 import { useSelector } from "react-redux"
 import { useNavigate,Link } from "react-router-dom"
 import { useState,useEffect } from "react"
+import { RootState } from "../../app/store"
+import { DiaryType } from "../../utils/types"
 
-const EntriesList = (props) => {
+type EntriesListProps = {
+  diary:DiaryType
+}
+
+const EntriesList = (props:EntriesListProps) => {
 
   const {diary} = props
-  const {entries} = diary
-  const auth = useSelector(state => state.user.auth)
+  const [entries,setEntries] = useState(diary.entries)
+  const auth = useSelector((state:RootState) => state.user.auth)
   const navigate = useNavigate()
   const [abEdit,setAbEdit] = useState(false)
 
@@ -18,10 +24,15 @@ const EntriesList = (props) => {
   },[auth])
 
   useEffect(() => {
-    if (diary.uid === auth.uid){
+    if (diary.uid === auth.user?.uid){
       setAbEdit(true)
     }
   },[])
+
+  useEffect(() => {
+    const en = diary.entries.slice()
+    setEntries(en)
+  },[diary])
 
   let button = abEdit ? (
     <Link

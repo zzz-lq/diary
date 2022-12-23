@@ -1,11 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit"
 import { Timestamp } from "firebase/firestore"
+import { NotificationType } from "../../utils/types"
 
-const initialState = {
+type InitialState = {
+  notifications:NotificationType[] 
+}
+
+const initialState:InitialState = {
   notifications:[{
   id:"1",
   content:"Joined the party",
-  user:"Zhi lu",
+  displayName:"Zhi lu",
   createdAt:Timestamp.now(),
 }]}
 

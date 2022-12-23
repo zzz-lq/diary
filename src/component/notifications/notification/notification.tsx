@@ -1,6 +1,11 @@
 import moment from "moment"
+import { NotificationType } from "../../../utils/types"
 
-const Notification = ({notification}) => {
+type NotificationProps = {
+  notification:NotificationType
+}
+
+const Notification = ({notification}:NotificationProps) => {
 
   const {content,displayName,createdAt} = notification
   // console.log(createdAt)

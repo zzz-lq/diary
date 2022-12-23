@@ -5,11 +5,13 @@ import { useNavigate } from 'react-router-dom'
 import { upDateDiaryDocument } from "../../utils/firebase"
 import { upDateDiary } from "../../feature/diaries/diariesSlice"
 import { Timestamp } from "firebase/firestore"
+import { RootState } from "../../app/store"
+import { ChangeEvent,FormEvent } from "react"
 
 const EditDiary = () => {
 
-  const auth = useSelector(state => state.user.auth)
-  const diaries = useSelector(state => state.diaries.diaries)
+  const auth = useSelector((state:RootState) => state.user.auth)
+  const diaries = useSelector((state:RootState) => state.diaries.diaries)
   const {did} = useParams()
   const navigate = useNavigate()
   const dispatch = useDispatch()
@@ -17,8 +19,8 @@ const EditDiary = () => {
   const diary = diaries.find((diary) => diary.id === did)
   // console.log(diary)
   const initialFormData ={
-    title: diary.title,
-    type: diary.type,
+    title: diary?.title || "",
+    type: diary?.type || "",
   }
   const [formData,setFormData] = useState(initialFormData)
   // console.log(diary)
@@ -30,20 +32,20 @@ const EditDiary = () => {
     }
   },[auth])
 
-  const handleChange = (e) => {
+  const handleChange = (e:ChangeEvent<HTMLInputElement>) => {
     const {name,value} = e.target
     setFormData({...formData,[name]:value})
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e:FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     // console.log("title",title)
     // console.log("type",type)
     const createdAt = Timestamp.now()
     const newData = diaries.filter((diary) => {
-      if (diary.id === did){
+      if (diary.id === did ){
         diary = {...diary,type,title,createdAt}
-        console.log(diary)
+        // console.log(diary)
         return diary
       }
       return diary
@@ -53,7 +55,8 @@ const EditDiary = () => {
       ...formData,
       createdAt,
     }
-    await upDateDiaryDocument(did,data)
+    await upDateDiaryDocument(did as string,data)
+    navigate("/")
     console.log("update done!")
   }
 
@@ -69,11 +72,13 @@ const EditDiary = () => {
             id="title"
             name="title"
             onChange={handleChange}
+            value={title}
           />
         </div>
         Type:
 
-        {diary.type === "public" ? (
+        { diary && 
+        diary.type === "public" ? (
           <>
             <p>
               <label>

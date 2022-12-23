@@ -3,7 +3,9 @@ import { createAuthUserWithEmailAndPassword,createUserDocumentFromAuth } from ".
 import { useDispatch } from "react-redux"
 import { upDateAuth } from "../../feature/user/userSlice"
 import { useNavigate } from 'react-router-dom'
+import { ChangeEvent,FormEvent } from "react"
 
+//自动推断 
 const initialState = {
   email: "",
   password: "",
@@ -19,7 +21,7 @@ const SignUp = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
-  const onChangeValue = (e) => {
+  const onChangeValue = (e:ChangeEvent<HTMLInputElement>) => {
     const {name,value} = e.target
     setsignUpFormData({...signUpFormData,[name]:value})
   }
@@ -28,7 +30,7 @@ const SignUp = () => {
     setsignUpFormData(initialState)
   }
 
-  const onSubmitValue = async (e) => {
+  const onSubmitValue = async (e:FormEvent<HTMLFormElement>) => {
 
     e.preventDefault()
 
@@ -39,11 +41,13 @@ const SignUp = () => {
 
     try {
       const response = await createAuthUserWithEmailAndPassword(email,password)
-      await createUserDocumentFromAuth(response.user,{firstName,lastName})
-      response.user.displayName = firstName + " " + lastName
-      dispatch(upDateAuth(response.user))
-      resetForm()
-      navigate("/")
+      if (response){
+        await createUserDocumentFromAuth(response.user,{firstname:firstName,lastname:lastName})
+        const displayName = firstName + " " + lastName
+        dispatch(upDateAuth({user:response.user,displayName}))
+        resetForm()
+        navigate("/")
+      }
     }catch(error){
       console.log("there is something worry",error)
     }

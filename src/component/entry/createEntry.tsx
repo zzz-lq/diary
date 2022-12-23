@@ -5,17 +5,19 @@ import { useNavigate,useParams } from "react-router-dom"
 import { upDateDiary } from "../../feature/diaries/diariesSlice"
 import { upDateEntriesDocument } from "../../utils/firebase"
 import { Timestamp } from "firebase/firestore"
+import { RootState } from "../../app/store"
+import { ChangeEvent,FormEvent } from "react"
 
 const initialFormData = {
   id:"",
   title:"",
   content:"",
-  createdAt:null,
+  createdAt:Timestamp.now(),
 }
 
 const CreateEntry = () => {
 
-  const diaries = useSelector(state => state.diaries.diaries)
+  const diaries = useSelector((state:RootState) => state.diaries.diaries)
   const {did} = useParams()
   const navigate = useNavigate()
   const dispatch = useDispatch()
@@ -25,33 +27,36 @@ const CreateEntry = () => {
   const {content,title} = formData
 
 
-  const handleChange = (e) => {
+  const handleChange = (e:ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const {name,value} = e.target
     setFormData({...formData,[name]:value})
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e:FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const entries = diary.entries
-    const id = uuidv4()
-    const createdAt = Timestamp.now()
-    const data = {
-      id,
-      title,
-      content,
-      createdAt,
-    }
-    const newone = diaries.filter(diary => {
-      if (diary.id === did){
-        return {...diary,entries:[...entries,data]}
+    if (diary){
+      const entries = diary.entries
+      const id = uuidv4()
+      const createdAt = Timestamp.now()
+      const data = {
+        id,
+        title,
+        content,
+        createdAt,
       }
-      return diary
-    })
-    // console.log(newone)
-    dispatch(upDateDiary(newone))
-    await upDateEntriesDocument(diary.id,[...entries,data]);
-    console.log("entry updata done!")
-    navigate("/")
+      // console.log(data)
+      const newone = diaries.map(diary => {
+        if (diary.id === did){
+          return {...diary,entries:[...entries,data]}
+        }
+        return diary
+      })
+      // console.log(newone)
+      dispatch(upDateDiary(newone))
+      await upDateEntriesDocument(diary.id,[...entries,data]);
+      console.log("entry updata done!")
+      navigate(`/diary/${did}`)
+    }
   }
 
   return(

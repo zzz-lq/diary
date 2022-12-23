@@ -1,8 +1,15 @@
 import { Link } from "react-router-dom"
 import { useState,useEffect } from "react"
 import moment from "moment/moment"
+import { DiaryType } from "../../utils/types"
 
-const DiarySummary = (props) => {
+type DiarySummaryProps = {
+  diary:DiaryType,
+  abEdit:boolean,
+  deleteDiary:(diary:DiaryType) => {}
+}
+
+const DiarySummary = (props:DiarySummaryProps) => {
 
   const {diary,abEdit,deleteDiary} = props
   const {title,entries,type,displayName,createdAt,id} = diary

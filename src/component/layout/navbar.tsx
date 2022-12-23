@@ -2,10 +2,11 @@ import SignInLinks from "./signedInLinks"
 import SignOutLinks from "./signedOutLinks"
 import { Link } from "react-router-dom"
 import { useSelector } from "react-redux"
+import { RootState } from "../../app/store"
 
 const Navbar = () => {
 
-  const auth = useSelector(state => state.user.auth)
+  const auth = useSelector((state:RootState) => state.user.auth)
 
   return(
     <nav className="nav-wrapper grey darken-3">
@@ -14,7 +15,7 @@ const Navbar = () => {
           Diaries App
         </Link>
         {
-          auth ? <SignInLinks /> : <SignOutLinks />
+          auth.user ? <SignInLinks /> : <SignOutLinks />
         }
       </div>
     </nav>

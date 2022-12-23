@@ -3,11 +3,12 @@ import { useEffect } from "react"
 import { getNotificationsDocument } from "../../utils/firebase"
 import { setNotifications } from "../../feature/notifications/notificationsSlice"
 import { useDispatch,useSelector } from "react-redux"
+import { RootState } from "../../app/store"
 
 const Notifications = () => {
 
   const dispatch = useDispatch()
-  const notifications = useSelector(state => state.notifications.notifications)
+  const notifications = useSelector((state:RootState) => state.notifications.notifications)
   // console.log("notifications",notifications)
 
   useEffect(() => {

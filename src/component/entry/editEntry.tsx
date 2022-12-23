@@ -5,6 +5,9 @@ import { upDateDiary } from "../../feature/diaries/diariesSlice"
 import { upDateEntriesDocument } from "../../utils/firebase"
 import { useNavigate } from "react-router-dom"
 import { Timestamp } from "firebase/firestore"
+import { RootState } from "../../app/store"
+import { DiaryType } from "../../utils/types"
+import { ChangeEvent,FormEvent } from "react"
 
 const initialState = {
   title:"",
@@ -16,29 +19,31 @@ const EditEntry = () => {
   const {did,eid} = useParams()
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const diaries = useSelector(state => state.diaries.diaries)
+  const diaries = useSelector((state:RootState) => state.diaries.diaries)
   const [formData,setFormData] = useState(initialState)
   const {title,content} = formData
   // const [entry,setEntry] = useState()
-  const [diary,setDiary] = useState()
+  const [diary,setDiary] = useState({} as DiaryType)
 
   useEffect(() => {
     const newdiary = diaries.find((diary) => diary.id === did)
-    setDiary(newdiary)
-    const newentry = newdiary.entries.filter((entry) => entry.id === eid)
-    // setEntry(newentry[0])
-    const {title,content} = newentry[0]
-    // console.log(content,title)
-    setFormData({title,content})
+    if (newdiary) {
+      setDiary(newdiary)
+      const newentry = newdiary.entries.filter((entry) => entry.id === eid)
+      // setEntry(newentry[0])
+      const {title,content} = newentry[0]
+      // console.log(content,title)
+      setFormData({title,content})
+    }
     // console.log(formData)
   },[])
 
-  const onChangeValue = (e) => {
+  const onChangeValue = (e:ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const {name,value} = e.target
     setFormData({...formData,[name]:value})
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e:FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     // console.log("start")
     const createdAt = Timestamp.now()
